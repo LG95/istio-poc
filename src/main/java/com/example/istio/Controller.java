@@ -1,7 +1,6 @@
 package com.example.istio;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,14 +14,21 @@ import java.net.URI;
 @RestController
 public class Controller {
     private final RestTemplate restTemplate = new RestTemplate();
-    private final String externalBaseUrl;
+    private final String httpbinUrl;
+    private final String wiremockUrl;
 
-    public Controller(@Value("${external.base.url}") String externalBaseUrl) {
-        this.externalBaseUrl = externalBaseUrl;
+    public Controller(@Value("${httpbin.url}") String httpbinUrl, @Value("${wiremock.url}") String wiremockUrl) {
+        this.httpbinUrl = httpbinUrl;
+        this.wiremockUrl = wiremockUrl;
     }
 
-    @GetMapping(value = "/{path}", produces = MediaType.TEXT_PLAIN_VALUE)
-    public String get(@PathVariable String path) {
-        return restTemplate.getForEntity(URI.create(externalBaseUrl + path), String.class).getBody();
+    @GetMapping(value = "/httpbin/{path}")
+    public Object getFromHttpbin(@PathVariable String path) {
+        return restTemplate.getForObject(URI.create(httpbinUrl + path), Object.class);
+    }
+
+    @GetMapping(value = "/wiremock/{path}")
+    public String getFromWiremock(@PathVariable String path) {
+        return restTemplate.getForObject(URI.create(wiremockUrl + path), String.class);
     }
 }
