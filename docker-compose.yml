@@ -1,0 +1,9 @@
+version: '3'
+services:
+  istio-poc:
+    image: istio-poc
+    build: .
+    environment:
+      - EXTERNAL_BASE_URL=http://host.docker.internal:8008/
+    ports:
+      - 8080:8080
