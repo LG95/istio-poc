@@ -13,6 +13,8 @@ import java.net.URI;
  **/
 @RestController
 public class Controller {
+    private static final String PATH_DELIMITER = "/";
+
     private final RestTemplate restTemplate = new RestTemplate();
     private final String httpbinUrl;
     private final String wiremockUrl;
@@ -24,11 +26,20 @@ public class Controller {
 
     @GetMapping(value = "/httpbin/{path}")
     public Object getFromHttpbin(@PathVariable String path) {
-        return restTemplate.getForObject(URI.create(httpbinUrl + path), Object.class);
+        return getFromUrl(String.join(PATH_DELIMITER, httpbinUrl, path), Object.class);
+    }
+
+    @GetMapping(value = "/httpbin/{path}/{argument}")
+    public Object getFromHttpbin(@PathVariable String path, @PathVariable String argument) {
+        return getFromUrl(String.join(PATH_DELIMITER, httpbinUrl, path, argument), Object.class);
     }
 
     @GetMapping(value = "/wiremock/{path}")
     public String getFromWiremock(@PathVariable String path) {
-        return restTemplate.getForObject(URI.create(wiremockUrl + path), String.class);
+        return getFromUrl(String.join(PATH_DELIMITER, wiremockUrl, path), String.class);
+    }
+
+    private <T> T getFromUrl(String url, Class<T> responseClass) {
+        return restTemplate.getForObject(URI.create(url), responseClass);
     }
 }
